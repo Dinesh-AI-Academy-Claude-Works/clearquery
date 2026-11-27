@@ -31,6 +31,7 @@ extension's manifest.json (built by scripts/build_mcpb.py).
 from __future__ import annotations
 
 import atexit
+import base64
 import difflib
 import functools
 import inspect
@@ -50,9 +51,9 @@ from pathlib import Path
 from hdbcli import dbapi
 from mcp.server.mcpserver import MCPServer  # mcp 2.x (was FastMCP in 1.x)
 from mcp.server.mcpserver.exceptions import ToolError  # message reaches Claude; other exceptions are hidden
-from mcp.types import ToolAnnotations
+from mcp.types import Icon, ToolAnnotations
 
-VERSION = "2.3.0"
+VERSION = "2.3.1"
 BRAND = "Dinesh AI Academy"
 SUPPORT = "support@dineshaiacademy.com"
 WEBSITE = "https://dineshaiacademy.com"
@@ -176,8 +177,28 @@ DEFAULT_SCHEMA = _env_schema()
 _SCHEMA_TEXT = f"schema {DEFAULT_SCHEMA}" if DEFAULT_SCHEMA else "the login's default schema"
 QUERY_TIMEOUT_S = _query_timeout()
 
+ICON_URL = "https://raw.githubusercontent.com/Dinesh-AI-Academy-Claude-Works/clearquery/main/assets/icon.png"
+
+
+def _icons() -> list[Icon]:
+    """The Dinesh AI Academy logo, announced when ClearQuery loads (apps that show server icons use it).
+    A small copy travels inside the answer itself; the full-size logo comes from the public repository."""
+    icons = []
+    base = Path(__file__).resolve().parent.parent
+    for path in (base / "assets" / "icon-64.png", base / "icon-64.png"):  # plugin layout, extension layout
+        try:
+            data = base64.b64encode(path.read_bytes()).decode("ascii")
+            icons.append(Icon(src=f"data:image/png;base64,{data}", mimeType="image/png", sizes=["64x64"]))
+            break
+        except OSError:
+            continue
+    icons.append(Icon(src=ICON_URL, mimeType="image/png", sizes=["512x512"]))
+    return icons
+
+
 mcp = MCPServer(
     "sap-hana-analyst",
+    icons=_icons(),
     title=f"{_PRODUCT} · {BRAND}",
     description=("Read-only SAP HANA analyst by Dinesh AI Academy: business questions, schema exploration, DDL, "
                  "statistics and query plans, with self-healing connections and plain-language errors."),

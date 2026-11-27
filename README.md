@@ -14,42 +14,65 @@
 ClearQuery gives Claude **35 read-only tools** for SAP HANA and a skill (`hana-analyst`) that teaches Claude to work
 like a careful analyst: look before it queries, use the real column names, aggregate in SQL, and show its work.
 
-## What you can ask
+## Set up in 3 steps
 
-- "Which schemas and tables do I have? Find the tables with a customer number."
-- "Describe table VBRK and show five sample rows."
-- "Total net sales by month for last year, highest first. Show the SQL."
-- "Why is this query slow? Show its execution plan."
-- "What depends on this view? What may my login read?"
-- "The connection isn't working. What's wrong?"
+### 1. Pick where you use Claude
 
-## Install (Claude Code)
+ClearQuery's HANA tools run **on your own computer**, because only your computer can reach your database (often
+`localhost` or a company network).
 
-1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) once. It fetches the right Python and the
-   packages for you.
-2. In Claude Code, add the plugin:
+| You use | Works with your HANA? | Go to |
+|---|---|---|
+| **Claude Desktop app**, normal chat | ✔ | [2a. Claude Desktop](#2a-claude-desktop-app) |
+| **Claude Code**: terminal, VS Code, or the Desktop **Code** tab | ✔ | [2b. Claude Code](#2b-claude-code) |
+| **claude.ai** in a web browser | Skill only: a browser can't run local tools. Claude explains this and can still review SQL you run yourself | Use one of the above for your data |
+| **Cowork** | Skill; tools only when the session runs on your computer (no settings form) | Prefer Claude Desktop or Claude Code |
+
+### 2a. Claude Desktop app
+
+1. Download **`clearquery-<version>.mcpb`** from the
+   [latest release](https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery/releases/latest).
+2. Double-click it, or drag it into Claude Desktop > **Settings** > **Extensions**, then choose **Install**.
+3. The settings form opens: fill it in as in [step 3](#3-fill-in-the-settings-form), and make sure ClearQuery is
+   turned **on**. Later: **Settings** > **Extensions** > **ClearQuery** > **Configure**.
+
+Nothing else to install: Claude Desktop downloads Python and the packages on first start (about half a minute).
+
+### 2b. Claude Code
+
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) once (Windows:
+   `winget install --id=astral-sh.uv -e`, macOS: `brew install uv`). Python itself is not needed.
+2. Add the plugin:
 
    ```
    /plugin install clearquery --marketplace Dinesh-AI-Academy-Claude-Works/clearquery
    ```
 
-   On older Claude Code versions, use the two-step form:
+   On older Claude Code versions: `/plugin marketplace add Dinesh-AI-Academy-Claude-Works/clearquery`, then
+   `/plugin install clearquery@dinesh-ai-academy`.
+3. Open the settings form: `/plugin` > **Installed** > **ClearQuery** > **Configure**. Fill it in as in
+   [step 3](#3-fill-in-the-settings-form), then type `/reload-plugins`.
+4. `/mcp` should show ClearQuery **connected** with 35 tools.
 
-   ```
-   /plugin marketplace add Dinesh-AI-Academy-Claude-Works/clearquery
-   /plugin install clearquery@dinesh-ai-academy
-   ```
+Start Claude Code from any folder except ClearQuery's own folder. To try a local copy:
+`claude --plugin-dir <path to this folder>`.
 
-3. Fill in the form: your HANA host, a **read-only user** and its password. The schema and the query timeout are
-   optional. Change them later with `/plugin` > Installed > ClearQuery > Configure, then `/reload-plugins`.
-4. The first start downloads the packages once (about half a minute). Then ask: *"Test the connection, then list the
-   tables."*
+### 3. Fill in the settings form
 
-To try a local copy before installing: `claude --plugin-dir <path to this folder>`.
+| Field | HANA Cloud | HANA Express (Docker) or on-premise |
+|---|---|---|
+| **Host** | SQL endpoint from HANA Cloud Central, without `https://` | `localhost`, or the server's name |
+| **Port** | `443` | `39041` (HANA Express, tenant HXE); otherwise ask your admin |
+| **User** | a **read-only** user, e.g. `MCP_READER` (never an admin) | same |
+| **Password** | its password, kept in secure storage, never in a file or the chat | same |
+| **Default schema** | optional, e.g. `SALES` | optional |
+| **Use TLS encryption** | on | on |
+| **Validate TLS certificate** | on | **off** for HANA Express or a self-signed certificate |
+| **Query timeout** | `120` (default) | `120` (default) |
 
-### Create a read-only user (recommended)
+Then ask Claude: ***"Diagnose the connection."*** Every step should say **OK**. If one doesn't, it says what to fix.
 
-Run once as an administrator, then use `MCP_READER` in the form:
+**No read-only user yet?** An administrator runs this once:
 
 ```sql
 CREATE USER MCP_READER PASSWORD "<a strong password>" NO FORCE_FIRST_PASSWORD_CHANGE;
@@ -58,26 +81,14 @@ GRANT SELECT ON SCHEMA <YOUR_SCHEMA> TO MCP_READER;
 GRANT CATALOG READ TO MCP_READER;
 ```
 
-## Where it works
+## What you can ask
 
-| App | Works? |
-|---|---|
-| **Claude Code** (terminal, VS Code, desktop Code tab) | Yes. Prompts you for the connection details when you install. |
-| **Cowork** (session on your computer) | Loads the skill. The server needs its connection details, which Cowork does not prompt for. |
-| **Claude Desktop chat** (Windows, macOS, Linux) | Yes, with the one-click extension `clearquery-<version>.mcpb` (see below). |
-| **claude.ai in the browser** | No: the browser cannot start a local server that reaches your database. |
-
-## Install (Claude Desktop chat)
-
-1. Download `clearquery-<version>.mcpb` from the
-   [latest release](https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery/releases/latest).
-2. Double-click it, or drag it into Claude Desktop > **Settings** > **Extensions**, and choose **Install**.
-3. Fill in the form (host, port, read-only user, password; schema optional). For HANA Express turn
-   **Validate TLS certificate** off. Your password is kept in Claude Desktop's secure storage.
-4. Enable the extension. The first start downloads Python and the packages once (no `uv` or Python install needed).
-   Then, in a new chat: *"Diagnose the connection, then list my tables."*
-
-The chat has no `hana-analyst` skill, but the server gives Claude the same working rules.
+- "Which schemas and tables do I have? Find the tables with a customer number."
+- "Describe table VBRK and show five sample rows."
+- "Total net sales by month for last year, highest first. Show the SQL."
+- "Why is this query slow? Show its execution plan."
+- "What depends on this view? What may my login read?"
+- "The connection isn't working. What's wrong?"
 
 ## Supported computers
 
@@ -198,6 +209,15 @@ uv run --locked python scripts/build_mcpb.py
 To live-test a built extension the way Claude Desktop starts it, unpack it
 (`npx @anthropic-ai/mcpb unpack dist/clearquery-<version>.mcpb <folder>`) and run the live tests with
 `CLEARQUERY_EXTENSION_DIR=<folder>`.
+
+## What's new in 2.3.1
+
+- **Clear setup guide** at the top of this page, and inside the skill, so Claude can walk anyone through setup in
+  their own app.
+- **claude.ai in the browser:** Claude now explains that the HANA tools run on your computer and points to Claude
+  Desktop or Claude Code, instead of giving install advice that doesn't apply there.
+- **Dinesh AI Academy logo** announced by the server when it loads (64 px inline and 512 px), size-tagged icons in the
+  Desktop extension, and documentation, support and privacy links for the plugin directory listing.
 
 ## What's new in 2.3.0
 

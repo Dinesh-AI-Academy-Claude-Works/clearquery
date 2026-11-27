@@ -16,6 +16,7 @@ again after a fix.
 
 Standard library only, and compatible with old Python versions, because it runs before any package is installed.
 """
+import base64
 import json
 import os
 import platform
@@ -43,6 +44,22 @@ RESTART = ("turn ClearQuery off and on again in Claude Desktop > Settings > Exte
 def log(message):
     sys.stderr.write("[ClearQuery launcher] " + message + "\n")
     sys.stderr.flush()
+
+
+def icons():
+    """The Dinesh AI Academy logo for the stand-in server (same as the real server announces)."""
+    out = []
+    for path in (os.path.join(ROOT, "assets", "icon-64.png"), os.path.join(ROOT, "icon-64.png")):
+        try:
+            with open(path, "rb") as f:
+                data = base64.b64encode(f.read()).decode("ascii")
+            out.append({"src": "data:image/png;base64," + data, "mimeType": "image/png", "sizes": ["64x64"]})
+            break
+        except OSError:
+            continue
+    out.append({"src": "https://raw.githubusercontent.com/Dinesh-AI-Academy-Claude-Works/clearquery/main/assets/"
+                       "icon.png", "mimeType": "image/png", "sizes": ["512x512"]})
+    return out
 
 
 def version():
@@ -305,7 +322,8 @@ def serve_problem(problem):
             reply(msg["id"], {"protocolVersion": params.get("protocolVersion") or "2025-06-18",
                               "capabilities": {"tools": {"listChanged": False}},
                               "serverInfo": {"name": "sap-hana-analyst", "version": version(),
-                                             "title": "ClearQuery · Dinesh AI Academy (not started)"},
+                                             "title": "ClearQuery · Dinesh AI Academy (not started)",
+                                             "icons": icons()},
                               "instructions": instructions})
         elif method == "ping":
             reply(msg["id"], {})

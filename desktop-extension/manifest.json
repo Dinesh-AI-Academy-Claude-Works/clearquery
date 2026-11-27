@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "clearquery",
   "display_name": "ClearQuery: Analyst for SAP HANA",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Ask Claude about your SAP HANA data. Read-only, self-healing, by Dinesh AI Academy.",
   "long_description": "**ClearQuery** by **Dinesh AI Academy** lets Claude answer questions about your SAP HANA data in plain words: explore schemas, describe tables, run SELECT queries, profile columns, and explain slow queries.\n\n**Read-only twice over.** ClearQuery only sends single SELECT / WITH queries and refuses everything else, and you connect with a database user that can only read.\n\n**Built to keep working.** The connection is checked and reopened automatically when HANA or the network drops it. A wrong password is never retried by itself, so your database user is not locked. Misspelled tables, columns and schemas get \"did you mean\" suggestions, every HANA error comes with what to do next, and `diagnose_connection` checks each setup step and names the one that fails.\n\n**Private.** ClearQuery connects only to the HANA host you enter. It sends nothing to Dinesh AI Academy: no telemetry, no account. Your password is kept in Claude Desktop's secure storage.\n\nFirst start: Claude Desktop downloads Python and the pinned packages once (about half a minute). Then ask: \"Diagnose the connection, then list my tables.\"",
   "author": {
@@ -23,7 +23,14 @@
     "entry_point": "server/launcher.py",
     "mcp_config": {
       "command": "uv",
-      "args": ["run", "--quiet", "--no-project", "--directory", "${__dirname}", "server/launcher.py"],
+      "args": [
+        "run",
+        "--quiet",
+        "--no-project",
+        "--directory",
+        "${__dirname}",
+        "server/launcher.py"
+      ],
       "env": {
         "HANA_HOST": "${user_config.host}",
         "HANA_PORT": "${user_config.port}",
@@ -40,11 +47,26 @@
   },
   "tools": [],
   "tools_generated": false,
-  "keywords": ["sap", "sap-hana", "hana", "sql", "database", "analytics", "read-only", "dinesh-ai-academy"],
+  "keywords": [
+    "sap",
+    "sap-hana",
+    "hana",
+    "sql",
+    "database",
+    "analytics",
+    "read-only",
+    "dinesh-ai-academy"
+  ],
   "license": "MIT",
-  "privacy_policies": ["https://dineshaiacademy.com/privacy-policy.html"],
+  "privacy_policies": [
+    "https://dineshaiacademy.com/privacy-policy.html"
+  ],
   "compatibility": {
-    "platforms": ["darwin", "win32", "linux"],
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
     "runtimes": {
       "python": ">=3.11"
     }
@@ -108,5 +130,19 @@
       "max": 3600,
       "required": false
     }
-  }
+  },
+  "icons": [
+    {
+      "src": "icon.png",
+      "size": "512x512"
+    },
+    {
+      "src": "icon-128.png",
+      "size": "128x128"
+    },
+    {
+      "src": "icon-64.png",
+      "size": "64x64"
+    }
+  ]
 }

@@ -35,6 +35,8 @@ FILES = {
     "desktop-extension/manifest.json": "manifest.json",
     "desktop-extension/README.md": "README.md",
     "assets/icon.png": "icon.png",
+    "assets/icon-128.png": "icon-128.png",
+    "assets/icon-64.png": "icon-64.png",
     "server/hana_mcp_server.py": "server/hana_mcp_server.py",
     "server/launcher.py": "server/launcher.py",
     "pyproject.toml": "pyproject.toml",

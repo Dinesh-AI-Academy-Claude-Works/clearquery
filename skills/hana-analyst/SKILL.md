@@ -1,10 +1,11 @@
 ---
 name: hana-analyst
-description: Answer questions about data in SAP HANA safely and accurately with ClearQuery by Dinesh AI Academy. Use when the user asks about HANA tables, schemas, columns, sales, finance or any business figures stored in SAP HANA, wants a query explained, checked or tuned, or the HANA connection is not working.
+description: Answer questions about data in SAP HANA safely and accurately with ClearQuery by Dinesh AI Academy. Use when the user asks about HANA tables, schemas, columns, sales, finance or any business figures stored in SAP HANA, wants a query explained, checked or tuned, wants to set up or configure ClearQuery or its SAP HANA credentials, or the HANA connection is not working.
 ---
 
-You have a read-only SAP HANA connection through the `hana` MCP server: **ClearQuery** by Dinesh AI Academy (35
-tools). Use it like this.
+**ClearQuery** by Dinesh AI Academy gives you a read-only SAP HANA connection through the `hana` MCP server (35
+tools), when it runs on the user's computer. If its tools are not available, read "If the ClearQuery tools are not
+available" below before anything else. Otherwise use them like this.
 
 ## Before you write SQL
 
@@ -46,26 +47,69 @@ ClearQuery's errors say what went wrong and what to do. Read them and act on the
 The server reconnects by itself when HANA or the network drops the connection, so a single dropped connection is
 not something you need to handle.
 
-## If ClearQuery itself could not start
+## If the ClearQuery tools are not available
 
+First work out where you are running, because the fix depends on it:
+
+- **claude.ai in a web browser (or any chat without local tools):** ClearQuery's HANA tools cannot run here. They
+  run as a small program on the user's own computer, and only that computer can reach their database (often
+  `localhost` or a company network). This is expected, not an error. Tell the user plainly, then offer the two ways
+  to use ClearQuery with their data (see **Setup guide** below): the **Claude Desktop app** with the ClearQuery
+  extension, or **Claude Code**. You can still help without the tools: explain HANA concepts, review or write SQL
+  for them to run, and read results they paste in. Never invent figures from their database.
 - **Only one tool, `clearquery_setup_status`, is available:** ClearQuery could not start on this computer (for
-  example an unsupported system, a blocked download, or a full disk). Call it once and explain the result to the user
-  in plain words: what happened, why, and the options it lists. It also checks again, so after the user fixed
-  something, calling it tells you whether ClearQuery is ready (then the user restarts it as the result says).
-- **No ClearQuery tools at all:** the usual cause on a new computer is that `uv` is not installed (Claude Code
-  needs it to start ClearQuery; Python itself is not needed). Tell the user to install uv
-  (Windows: `winget install --id=astral-sh.uv -e`, macOS: `brew install uv`, or
+  example an unsupported system, a blocked download, or a full disk). Call it once and explain the result in plain
+  words: what happened, why, and the options it lists. It also checks again, so after the user fixed something,
+  calling it tells you whether ClearQuery is ready (then the user restarts it as the result says).
+- **Claude Code or the Desktop Code tab, and no ClearQuery tools at all:** the usual cause on a new computer is that
+  `uv` is not installed (Python itself is not needed). Tell the user to install uv (Windows:
+  `winget install --id=astral-sh.uv -e`, macOS: `brew install uv`, or
   https://docs.astral.sh/uv/getting-started/installation/), then open a new terminal and start Claude Code again.
   If uv is installed, suggest `/mcp` to see ClearQuery's status and its error.
+- **Claude Desktop chat, and no ClearQuery tools:** the extension is not installed or is turned off. See the setup
+  guide.
 - Do not install software or change the user's system yourself unless they ask you to.
 
 ## If the tools say it is not set up, or cannot connect
 
 Do not retry in a loop. Call `diagnose_connection` **once**: it checks settings, host name, network port, TLS
 certificate, login, schema and privileges, and says which step fails and how to fix it. Tell the user that step and
-fix in plain words. Settings are changed in Claude Code with `/plugin` > Installed > ClearQuery > Configure, then
-`/reload-plugins`. After a rejected password, ClearQuery pauses automatic login attempts for two minutes so the
-database user is not locked; tell the user to correct the password rather than trying again.
+fix in plain words; the message names the right settings screen for their app. After a rejected password,
+ClearQuery pauses automatic login attempts for two minutes so the database user is not locked; tell the user to
+correct the password rather than trying again.
+
+## Setup guide (walk the user through it when asked, or when ClearQuery is not set up)
+
+Pick the user's app. Ask if it is unclear. Give one step at a time if they seem new to this.
+
+**Claude Desktop app (chat):**
+1. Download `clearquery-<version>.mcpb` from
+   https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery/releases/latest
+2. Double-click it (or drag it into Settings > Extensions) and choose Install.
+3. Fill in the form, then make sure ClearQuery is turned on. The first start takes about half a minute.
+
+**Claude Code (terminal, VS Code, Desktop Code tab):**
+1. Install uv once (see above).
+2. `/plugin install clearquery --marketplace Dinesh-AI-Academy-Claude-Works/clearquery`
+3. `/plugin` > Installed > ClearQuery > Configure, fill in the form, then `/reload-plugins`. `/mcp` should show
+   ClearQuery connected.
+
+**The form, field by field:**
+
+| Field | HANA Cloud | HANA Express (Docker) or on-premise |
+|---|---|---|
+| Host | SQL endpoint from HANA Cloud Central, without `https://` | `localhost`, or the server name |
+| Port | `443` | `39041` for HANA Express tenant HXE; ask the admin otherwise |
+| User / password | a **read-only** user, e.g. `MCP_READER` (never an admin) | same |
+| Default schema | optional, e.g. `SALES` | optional |
+| Use TLS encryption | on | on (off only if the admin says TLS is disabled) |
+| Validate TLS certificate | on | **off** for HANA Express or a self-signed certificate |
+| Query timeout | 120 (default) | 120 (default) |
+
+Then ask: "Diagnose the connection". Every step should say OK. Never ask for the password in the chat: it belongs
+only in the form, which stores it securely. If the user has no read-only user yet, the administrator can create one:
+`CREATE USER MCP_READER PASSWORD "<strong password>" NO FORCE_FIRST_PASSWORD_CHANGE;` then
+`GRANT SELECT ON SCHEMA <schema> TO MCP_READER;`
 
 ## Answering
 

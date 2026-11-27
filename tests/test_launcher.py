@@ -44,6 +44,10 @@ def case(name, env, expect_tools, *words):
         missing = [w for w in words if w.lower() not in text.lower()]
         if missing:
             problems.append(f"answer lacks {missing}")
+        icons = init.server_info.icons or []
+        if not any(i.src.startswith("data:image/png;base64,") for i in icons) or \
+                not any(i.src.startswith("https://") for i in icons):
+            problems.append("server should announce the logo (inline 64 px and full-size URL)")
         if expect_tools == 1 and "not started" not in (init.server_info.title or ""):
             problems.append("stand-in server title should say 'not started'")
         if expect_tools == 1 and "clearquery_setup_status" not in (init.instructions or ""):
