@@ -52,7 +52,7 @@ from mcp.server.mcpserver import MCPServer  # mcp 2.x (was FastMCP in 1.x)
 from mcp.server.mcpserver.exceptions import ToolError  # message reaches Claude; other exceptions are hidden
 from mcp.types import ToolAnnotations
 
-VERSION = "2.2.0"
+VERSION = "2.3.0"
 BRAND = "Dinesh AI Academy"
 SUPPORT = "support@dineshaiacademy.com"
 WEBSITE = "https://dineshaiacademy.com"

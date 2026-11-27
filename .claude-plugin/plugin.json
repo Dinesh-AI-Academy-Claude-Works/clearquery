@@ -1,7 +1,7 @@
 {
   "name": "clearquery",
   "displayName": "ClearQuery: Analyst for SAP HANA, by Dinesh AI Academy",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Ask Claude about your SAP HANA data. 35 read-only tools to explore schemas, describe tables and run SELECT queries, with self-healing connections, plain-language errors with 'did you mean' fixes, a step-by-step connection doctor, and a skill that teaches Claude to analyse safely.",
   "author": {
     "name": "Dinesh AI Academy",
@@ -12,6 +12,9 @@
   "repository": "https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery",
   "license": "MIT",
   "icon": "./assets/icon.png",
+  "network": {
+    "hosts": ["pypi.org", "files.pythonhosted.org", "releases.astral.sh", "github.com"]
+  },
   "keywords": [
     "clearquery",
     "sap-hana",

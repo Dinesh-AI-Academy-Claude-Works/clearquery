@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "clearquery",
   "display_name": "ClearQuery: Analyst for SAP HANA",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Ask Claude about your SAP HANA data. Read-only, self-healing, by Dinesh AI Academy.",
   "long_description": "**ClearQuery** by **Dinesh AI Academy** lets Claude answer questions about your SAP HANA data in plain words: explore schemas, describe tables, run SELECT queries, profile columns, and explain slow queries.\n\n**Read-only twice over.** ClearQuery only sends single SELECT / WITH queries and refuses everything else, and you connect with a database user that can only read.\n\n**Built to keep working.** The connection is checked and reopened automatically when HANA or the network drops it. A wrong password is never retried by itself, so your database user is not locked. Misspelled tables, columns and schemas get \"did you mean\" suggestions, every HANA error comes with what to do next, and `diagnose_connection` checks each setup step and names the one that fails.\n\n**Private.** ClearQuery connects only to the HANA host you enter. It sends nothing to Dinesh AI Academy: no telemetry, no account. Your password is kept in Claude Desktop's secure storage.\n\nFirst start: Claude Desktop downloads Python and the pinned packages once (about half a minute). Then ask: \"Diagnose the connection, then list my tables.\"",
   "author": {
@@ -20,10 +20,10 @@
   "icon": "icon.png",
   "server": {
     "type": "uv",
-    "entry_point": "server/hana_mcp_server.py",
+    "entry_point": "server/launcher.py",
     "mcp_config": {
       "command": "uv",
-      "args": ["run", "--quiet", "--locked", "--directory", "${__dirname}", "server/hana_mcp_server.py"],
+      "args": ["run", "--quiet", "--no-project", "--directory", "${__dirname}", "server/launcher.py"],
       "env": {
         "HANA_HOST": "${user_config.host}",
         "HANA_PORT": "${user_config.port}",
@@ -53,7 +53,7 @@
     "host": {
       "type": "string",
       "title": "HANA host (SQL endpoint)",
-      "description": "For HANA Cloud: the SQL endpoint from HANA Cloud Central, e.g. xxxx.hna0.prod-us10.hanacloud.ondemand.com (without https://). For HANA Express: localhost.",
+      "description": "ClearQuery connects only to this host. For HANA Cloud: the SQL endpoint from HANA Cloud Central, e.g. xxxx.hna0.prod-us10.hanacloud.ondemand.com (without https://). For HANA Express: localhost.",
       "required": true
     },
     "port": {

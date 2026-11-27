@@ -36,6 +36,7 @@ FILES = {
     "desktop-extension/README.md": "README.md",
     "assets/icon.png": "icon.png",
     "server/hana_mcp_server.py": "server/hana_mcp_server.py",
+    "server/launcher.py": "server/launcher.py",
     "pyproject.toml": "pyproject.toml",
     "uv.lock": "uv.lock",
     "LICENSE": "LICENSE",

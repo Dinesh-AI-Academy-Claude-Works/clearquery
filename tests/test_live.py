@@ -15,8 +15,9 @@ from mcp.client.stdio import stdio_client
 
 ROOT = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
 EXTENSION = os.environ.get("CLEARQUERY_EXTENSION_DIR", "")
-LAUNCH = (["run", "--quiet", "--locked", "--directory", EXTENSION, "server/hana_mcp_server.py"] if EXTENSION else
-          ["run", "--quiet", "--locked", "--project", ROOT, f"{ROOT}/server/hana_mcp_server.py"])
+# Same commands as desktop-extension/manifest.json and .mcp.json: uv starts the launcher, which starts the server.
+LAUNCH = (["run", "--quiet", "--no-project", "--directory", EXTENSION, "server/launcher.py"] if EXTENSION else
+          ["run", "--quiet", "--no-project", f"{ROOT}/server/launcher.py"])
 env = dict(os.environ)
 for line in open(os.path.join(ROOT, ".env"), encoding="utf-8"):
     line = line.strip()

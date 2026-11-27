@@ -1,0 +1,17 @@
+{
+  "description": "ClearQuery: tell the user clearly when uv (needed to start ClearQuery) is missing.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo `# <#` >/dev/null\ncommand -v uv >/dev/null 2>&1 || printf '%s\n' '{\"systemMessage\": \"ClearQuery (SAP HANA) cannot start: the uv tool is not installed on this computer, or Claude Code was started before it was installed. Install uv (Windows: winget install --id=astral-sh.uv -e   macOS: brew install uv   any system: https://docs.astral.sh/uv/getting-started/installation/), then open a new terminal and start Claude Code again. Python itself is not needed: uv downloads it.\", \"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"ClearQuery (the SAP HANA plugin by Dinesh AI Academy) cannot start on this computer because the uv tool is not installed or not on PATH, so its HANA tools are missing. If the user asks about SAP HANA or ClearQuery, explain this plainly and give the install options: Windows: winget install --id=astral-sh.uv -e ; macOS: brew install uv ; any system: https://docs.astral.sh/uv/getting-started/installation/ . After installing, the user must open a new terminal and start Claude Code again (so uv is on PATH). Python does not need to be installed: uv downloads it. Do not try to install software yourself unless the user asks you to.\"}}'\nexit 0\n#> > $null\nif (-not (Get-Command uv -ErrorAction SilentlyContinue)) { Write-Output '{\"systemMessage\": \"ClearQuery (SAP HANA) cannot start: the uv tool is not installed on this computer, or Claude Code was started before it was installed. Install uv (Windows: winget install --id=astral-sh.uv -e   macOS: brew install uv   any system: https://docs.astral.sh/uv/getting-started/installation/), then open a new terminal and start Claude Code again. Python itself is not needed: uv downloads it.\", \"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"ClearQuery (the SAP HANA plugin by Dinesh AI Academy) cannot start on this computer because the uv tool is not installed or not on PATH, so its HANA tools are missing. If the user asks about SAP HANA or ClearQuery, explain this plainly and give the install options: Windows: winget install --id=astral-sh.uv -e ; macOS: brew install uv ; any system: https://docs.astral.sh/uv/getting-started/installation/ . After installing, the user must open a new terminal and start Claude Code again (so uv is on PATH). Python does not need to be installed: uv downloads it. Do not try to install software yourself unless the user asks you to.\"}}' }\nexit 0",
+            "timeout": 10,
+            "statusMessage": "Checking ClearQuery prerequisites"
+          }
+        ]
+      }
+    ]
+  }
+}

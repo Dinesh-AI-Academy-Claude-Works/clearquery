@@ -79,6 +79,27 @@ GRANT CATALOG READ TO MCP_READER;
 
 The chat has no `hana-analyst` skill, but the server gives Claude the same working rules.
 
+## Supported computers
+
+No Python installation is needed anywhere. Claude Desktop (extension) or `uv` (plugin) downloads a private Python and
+the exact packages on first start, which needs internet access once: Python from `releases.astral.sh` (older uv
+versions: `github.com`), packages from `pypi.org` and `files.pythonhosted.org`. After that, ClearQuery connects only to
+your HANA host.
+
+| Computer | ClearQuery |
+|---|---|
+| Windows 10 / 11 on Intel or AMD (64-bit) | ✔ |
+| Windows 11 on ARM (Snapdragon, e.g. Surface Laptop 7) | ✔ Runs SAP's driver through Windows' built-in Intel emulation, automatically |
+| macOS 13 or newer, Apple silicon or Intel | ✔ |
+| Linux on x86_64, ARM64 or ppc64le | ✔ |
+| Windows 10 on ARM | ✘ Windows 10 can't emulate 64-bit Intel programs. Upgrading to Windows 11 fixes it |
+| 32-bit Windows, macOS 12 or older | ✘ SAP's driver or a required library is not available |
+
+SAP publishes its HANA driver (`hdbcli`) only for these systems. On an unsupported computer ClearQuery does not just
+"fail": Claude explains what happened and the options (for example "upgrade to Windows 11" or "use another
+computer"). The same goes for a blocked download, a company proxy, a full disk or antivirus locking files, and
+fixable problems are retried automatically first.
+
 ## Built to keep working
 
 | When this happens | ClearQuery does this |
@@ -108,6 +129,9 @@ you if your login is an administrator or can change data.
 | "no answer" / timed out | Check the VPN, and add your IP to the instance's *Allowed connections*. |
 | "certificate" | HANA Express or self-signed: set *Validate TLS certificate* to `false`. |
 | "password was rejected" | Correct it in Configure, then `/reload-plugins`. |
+| "uv tool is not installed" (shown when Claude Code starts) | Install uv: `winget install --id=astral-sh.uv -e` (Windows), `brew install uv` (macOS), or [any system](https://docs.astral.sh/uv/getting-started/installation/). Open a new terminal and start Claude Code again. |
+| "ClearQuery could not start: … could not be downloaded" | First start needs internet. Check VPN/proxy, or start once on another network; after that it runs from the cache. Then `/mcp` → Reconnect. |
+| "ClearQuery could not start: … not supported" | This computer can't run SAP's driver. The message names the fix, if there is one (e.g. upgrade to Windows 11). |
 
 ## The 35 tools
 
@@ -153,6 +177,12 @@ Offline tests (no HANA needed; a fake driver simulates dropped connections, wron
 uv run --locked python tests/test_offline.py
 ```
 
+Launcher tests (unsupported computers, blocked downloads, Windows on ARM; no HANA needed, about 1 minute):
+
+```
+uv run --locked python tests/test_launcher.py
+```
+
 Live tests against your own HANA (reads the connection from a git-ignored `.env` in this folder, only reads data):
 
 ```
@@ -168,6 +198,16 @@ uv run --locked python scripts/build_mcpb.py
 To live-test a built extension the way Claude Desktop starts it, unpack it
 (`npx @anthropic-ai/mcpb unpack dist/clearquery-<version>.mcpb <folder>`) and run the live tests with
 `CLEARQUERY_EXTENSION_DIR=<folder>`.
+
+## What's new in 2.3.0
+
+- **Works on more computers, and says so clearly when it can't.** A new launcher prepares the computer before the
+  server starts. It runs Windows 11 on ARM laptops through Intel emulation. It retries a company proxy's
+  certificates and antivirus file locks by itself. Otherwise it explains the problem (unsupported system, blocked
+  download, full disk) with the user's options, and re-checks after a fix.
+- **Missing `uv` is announced when Claude Code starts**, with install commands, instead of a silent "failed" server.
+- Tests for both: `tests/test_launcher.py` (7 situations) and the start-up check in Git Bash, sh, PowerShell 5.1
+  and 7.
 
 ## What's new in 2.2.0
 

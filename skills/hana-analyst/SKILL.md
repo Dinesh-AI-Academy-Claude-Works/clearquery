@@ -46,6 +46,19 @@ ClearQuery's errors say what went wrong and what to do. Read them and act on the
 The server reconnects by itself when HANA or the network drops the connection, so a single dropped connection is
 not something you need to handle.
 
+## If ClearQuery itself could not start
+
+- **Only one tool, `clearquery_setup_status`, is available:** ClearQuery could not start on this computer (for
+  example an unsupported system, a blocked download, or a full disk). Call it once and explain the result to the user
+  in plain words: what happened, why, and the options it lists. It also checks again, so after the user fixed
+  something, calling it tells you whether ClearQuery is ready (then the user restarts it as the result says).
+- **No ClearQuery tools at all:** the usual cause on a new computer is that `uv` is not installed (Claude Code
+  needs it to start ClearQuery; Python itself is not needed). Tell the user to install uv
+  (Windows: `winget install --id=astral-sh.uv -e`, macOS: `brew install uv`, or
+  https://docs.astral.sh/uv/getting-started/installation/), then open a new terminal and start Claude Code again.
+  If uv is installed, suggest `/mcp` to see ClearQuery's status and its error.
+- Do not install software or change the user's system yourself unless they ask you to.
+
 ## If the tools say it is not set up, or cannot connect
 
 Do not retry in a loop. Call `diagnose_connection` **once**: it checks settings, host name, network port, TLS

@@ -5,10 +5,8 @@
       "args": [
         "run",
         "--quiet",
-        "--locked",
-        "--project",
-        "${CLAUDE_PLUGIN_ROOT}",
-        "${CLAUDE_PLUGIN_ROOT}/server/hana_mcp_server.py"
+        "--no-project",
+        "${CLAUDE_PLUGIN_ROOT}/server/launcher.py"
       ],
       "env": {
         "HANA_HOST": "${user_config.host}",
