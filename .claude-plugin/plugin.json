@@ -1,8 +1,8 @@
 {
   "name": "clearquery",
   "displayName": "ClearQuery: Analyst for SAP HANA, by Dinesh AI Academy",
-  "version": "2.0.0",
-  "description": "Ask Claude about your SAP HANA data. 34 read-only tools to explore schemas, describe tables and run SELECT queries, plus a skill that teaches Claude to analyse safely.",
+  "version": "2.1.0",
+  "description": "Ask Claude about your SAP HANA data. 35 read-only tools to explore schemas, describe tables and run SELECT queries, with self-healing connections, plain-language errors with 'did you mean' fixes, a step-by-step connection doctor, and a skill that teaches Claude to analyse safely.",
   "author": {
     "name": "Dinesh AI Academy",
     "email": "support@dineshaiacademy.com",
@@ -63,6 +63,12 @@
       "title": "Validate TLS certificate (true or false)",
       "description": "Keep true for HANA Cloud. Use false only for HANA Express (self-signed certificate)",
       "default": "true"
+    },
+    "query_timeout": {
+      "type": "string",
+      "title": "Query timeout in seconds (optional)",
+      "description": "HANA stops a query that runs longer than this. 5 to 3600, default 120",
+      "default": "120"
     }
   }
 }

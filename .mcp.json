@@ -17,7 +17,10 @@
         "HANA_PASSWORD": "${user_config.password}",
         "HANA_SCHEMA": "${user_config.schema}",
         "HANA_ENCRYPT": "${user_config.encrypt}",
-        "HANA_VALIDATE_CERT": "${user_config.validate_cert}"
+        "HANA_VALIDATE_CERT": "${user_config.validate_cert}",
+        "HANA_QUERY_TIMEOUT": "${user_config.query_timeout}",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONIOENCODING": "utf-8"
       }
     }
   }
