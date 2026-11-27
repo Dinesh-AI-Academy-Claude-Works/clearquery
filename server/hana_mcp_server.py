@@ -25,7 +25,8 @@ Built to keep working when things go wrong:
   Data        run_query · query_next_page · get_sample_data · get_column_stats
   Performance get_table_stats · get_partition_info · explain_plan · get_expensive_queries
 
-Claude Code starts this over stdio through the plugin's .mcp.json.
+Claude starts this over stdio: Claude Code through the plugin's .mcp.json, Claude Desktop through the .mcpb
+extension's manifest.json (built by scripts/build_mcpb.py).
 """
 from __future__ import annotations
 
@@ -51,7 +52,7 @@ from mcp.server.mcpserver import MCPServer  # mcp 2.x (was FastMCP in 1.x)
 from mcp.server.mcpserver.exceptions import ToolError  # message reaches Claude; other exceptions are hidden
 from mcp.types import ToolAnnotations
 
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 BRAND = "Dinesh AI Academy"
 SUPPORT = "support@dineshaiacademy.com"
 WEBSITE = "https://dineshaiacademy.com"
@@ -63,11 +64,13 @@ log = logging.getLogger("clearquery")
 IS_EXTENSION = (Path(__file__).resolve().parent.parent / "manifest.json").exists()
 # True when running as a Claude plugin (the plugin's .claude-plugin folder sits next to the server folder).
 IS_PLUGIN = (Path(__file__).resolve().parent.parent / ".claude-plugin").is_dir()
-_PRODUCT = "ClearQuery" if IS_PLUGIN else "SAP HANA Analyst"  # the name the user sees where this runs
-_WHERE = ("Claude Desktop > Settings > Extensions > SAP HANA Analyst > Configure" if IS_EXTENSION
+_PRODUCT = "ClearQuery"
+# Where the user changes settings, and how the server picks them up, depending on how it was installed.
+_WHERE = ("Claude Desktop: Settings > Extensions > ClearQuery > Configure" if IS_EXTENSION
           else "Claude Code: type /plugin, open ClearQuery under Installed and choose Configure" if IS_PLUGIN
-          else "the .env file in the project folder (then restart Claude)")
-_RESTART = ("quit Claude Desktop from the tray icon and open it again" if IS_EXTENSION
+          else "the HANA_* environment variables of this MCP server in your Claude configuration")
+_RESTART = ("turn the extension off and on again in Settings > Extensions, or quit Claude Desktop from the tray "
+            "icon and reopen it" if IS_EXTENSION
             else "type /reload-plugins, or restart Claude Code" if IS_PLUGIN
             else "restart Claude")
 _HANA_KEYS = ("HANA_HOST", "HANA_PORT", "HANA_USER", "HANA_PASSWORD", "HANA_SCHEMA", "HANA_ENCRYPT",
@@ -781,6 +784,7 @@ def _resolve(conn, value: str, schema: str, types=_TABLE_LIKE, what: str = "tabl
              follow_synonyms: bool = True) -> _Obj:
     """Find an object by name, forgiving case and SCHEMA.NAME, following synonyms. ToolError with suggestions if absent."""
     sch, name = _qualified(value, schema, what)
+    explicit = bool(schema and schema.strip()) or len(_split_name(value)) == 2
     sch = _resolve_schema(conn, sch)
     tlist = ", ".join(f"'{t}'" for t in types)
     base = "SELECT SCHEMA_NAME, OBJECT_NAME, OBJECT_TYPE FROM SYS.OBJECTS WHERE OBJECT_TYPE IN (" + tlist + ") AND "
@@ -791,7 +795,7 @@ def _resolve(conn, value: str, schema: str, types=_TABLE_LIKE, what: str = "tabl
         if len(found) > 1:
             raise ToolError(f"Several objects match '{name}' in different upper/lower case: "
                             f"{', '.join(r[1] for r in found)}. Write the one you mean in double quotes.")
-    if not found and not sch and "SYNONYM" in types:  # public synonyms such as DUMMY
+    if not found and not explicit and "SYNONYM" in types:  # public synonyms such as DUMMY
         found = _fetch(conn, base + "SCHEMA_NAME = 'PUBLIC' AND OBJECT_NAME = ?", (name,), 1)
     if not found:
         raise ToolError(_not_found(conn, name, sch, types, what))
@@ -1631,7 +1635,16 @@ def explain_plan(sql: str) -> dict:
 
     def work(conn):
         # The plan rows live in a session-local table and disappear when the session ends.
-        _close(_execute(conn, f"EXPLAIN PLAN SET STATEMENT_NAME = '{statement}' FOR {q.text}"))
+        try:
+            _close(_execute(conn, f"EXPLAIN PLAN SET STATEMENT_NAME = '{statement}' FOR {q.text}"))
+        except dbapi.Error as e:
+            if _err_code(e) != 258:
+                raise
+            raise ToolError(
+                "HANA does not let this user explain that query. EXPLAIN PLAN needs more than read access when a "
+                "query touches system views (SYS.*, M_*) or objects owned by others; this user can still run it with "
+                "run_query. Explain queries on your business tables instead, or ask the database administrator for "
+                f"the needed privilege. (HANA: {_err_text(e)[:160]})") from e
         return _rows(conn, "SELECT OPERATOR_ID, PARENT_OPERATOR_ID, OPERATOR_NAME, OPERATOR_DETAILS, "
                            "EXECUTION_ENGINE, SCHEMA_NAME, TABLE_NAME, OUTPUT_SIZE, SUBTREE_COST FROM "
                            "SYS.EXPLAIN_PLAN_TABLE WHERE STATEMENT_NAME = ? ORDER BY OPERATOR_ID", (statement,))

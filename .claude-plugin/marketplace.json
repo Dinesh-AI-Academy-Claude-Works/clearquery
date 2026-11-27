@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Claude plugins by Dinesh AI Academy: premium, read-only analysts for enterprise data.",
-    "version": "2.1.0"
+    "version": "2.2.0"
   },
   "plugins": [
     {
       "name": "clearquery",
       "source": "./",
       "description": "ClearQuery: Analyst for SAP HANA, by Dinesh AI Academy. 35 read-only tools, self-healing connections, plain-language errors with 'did you mean' fixes, and a connection doctor.",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "author": {
         "name": "Dinesh AI Academy",
         "email": "support@dineshaiacademy.com",

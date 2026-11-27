@@ -1,0 +1,112 @@
+{
+  "manifest_version": "0.4",
+  "name": "clearquery",
+  "display_name": "ClearQuery: Analyst for SAP HANA",
+  "version": "2.2.0",
+  "description": "Ask Claude about your SAP HANA data. Read-only, self-healing, by Dinesh AI Academy.",
+  "long_description": "**ClearQuery** by **Dinesh AI Academy** lets Claude answer questions about your SAP HANA data in plain words: explore schemas, describe tables, run SELECT queries, profile columns, and explain slow queries.\n\n**Read-only twice over.** ClearQuery only sends single SELECT / WITH queries and refuses everything else, and you connect with a database user that can only read.\n\n**Built to keep working.** The connection is checked and reopened automatically when HANA or the network drops it. A wrong password is never retried by itself, so your database user is not locked. Misspelled tables, columns and schemas get \"did you mean\" suggestions, every HANA error comes with what to do next, and `diagnose_connection` checks each setup step and names the one that fails.\n\n**Private.** ClearQuery connects only to the HANA host you enter. It sends nothing to Dinesh AI Academy: no telemetry, no account. Your password is kept in Claude Desktop's secure storage.\n\nFirst start: Claude Desktop downloads Python and the pinned packages once (about half a minute). Then ask: \"Diagnose the connection, then list my tables.\"",
+  "author": {
+    "name": "Dinesh AI Academy",
+    "email": "support@dineshaiacademy.com",
+    "url": "https://dineshaiacademy.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery"
+  },
+  "homepage": "https://dineshaiacademy.com",
+  "documentation": "https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery#readme",
+  "support": "https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "uv",
+    "entry_point": "server/hana_mcp_server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "--quiet", "--locked", "--directory", "${__dirname}", "server/hana_mcp_server.py"],
+      "env": {
+        "HANA_HOST": "${user_config.host}",
+        "HANA_PORT": "${user_config.port}",
+        "HANA_USER": "${user_config.user}",
+        "HANA_PASSWORD": "${user_config.password}",
+        "HANA_SCHEMA": "${user_config.schema}",
+        "HANA_ENCRYPT": "${user_config.encrypt}",
+        "HANA_VALIDATE_CERT": "${user_config.validate_cert}",
+        "HANA_QUERY_TIMEOUT": "${user_config.query_timeout}",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  },
+  "tools": [],
+  "tools_generated": false,
+  "keywords": ["sap", "sap-hana", "hana", "sql", "database", "analytics", "read-only", "dinesh-ai-academy"],
+  "license": "MIT",
+  "privacy_policies": ["https://dineshaiacademy.com/privacy-policy.html"],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "python": ">=3.11"
+    }
+  },
+  "user_config": {
+    "host": {
+      "type": "string",
+      "title": "HANA host (SQL endpoint)",
+      "description": "For HANA Cloud: the SQL endpoint from HANA Cloud Central, e.g. xxxx.hna0.prod-us10.hanacloud.ondemand.com (without https://). For HANA Express: localhost.",
+      "required": true
+    },
+    "port": {
+      "type": "number",
+      "title": "HANA port",
+      "description": "443 for HANA Cloud, 39041 for HANA Express (tenant HXE).",
+      "default": 443,
+      "min": 1,
+      "max": 65535,
+      "required": true
+    },
+    "user": {
+      "type": "string",
+      "title": "Read-only database user",
+      "description": "A login that can only SELECT, such as MCP_READER. Never an administrator.",
+      "required": true
+    },
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "description": "Kept in Claude Desktop's secure storage. Never type it into the chat.",
+      "sensitive": true,
+      "required": true
+    },
+    "schema": {
+      "type": "string",
+      "title": "Default schema (optional)",
+      "description": "The schema Claude works in, e.g. RETAIL. Leave empty to use the login's own schema.",
+      "default": "",
+      "required": false
+    },
+    "encrypt": {
+      "type": "boolean",
+      "title": "Use TLS encryption",
+      "description": "Keep on for HANA Cloud and almost every system.",
+      "default": true,
+      "required": false
+    },
+    "validate_cert": {
+      "type": "boolean",
+      "title": "Validate TLS certificate",
+      "description": "Keep on for HANA Cloud. Turn off only for HANA Express or another self-signed certificate.",
+      "default": true,
+      "required": false
+    },
+    "query_timeout": {
+      "type": "number",
+      "title": "Query timeout (seconds)",
+      "description": "HANA stops a query that runs longer than this. 5 to 3600.",
+      "default": 120,
+      "min": 5,
+      "max": 3600,
+      "required": false
+    }
+  }
+}

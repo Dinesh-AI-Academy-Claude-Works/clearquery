@@ -64,7 +64,20 @@ GRANT CATALOG READ TO MCP_READER;
 |---|---|
 | **Claude Code** (terminal, VS Code, desktop Code tab) | Yes. Prompts you for the connection details when you install. |
 | **Cowork** (session on your computer) | Loads the skill. The server needs its connection details, which Cowork does not prompt for. |
-| **claude.ai and the desktop app's normal chat** | Not the server: chat does not start local servers. For Claude Desktop chat, Dinesh AI Academy provides a one-click `.mcpb` extension for Windows, macOS and Linux. Ask at support@dineshaiacademy.com. |
+| **Claude Desktop chat** (Windows, macOS, Linux) | Yes, with the one-click extension `clearquery-<version>.mcpb` (see below). |
+| **claude.ai in the browser** | No: the browser cannot start a local server that reaches your database. |
+
+## Install (Claude Desktop chat)
+
+1. Download `clearquery-<version>.mcpb` from the
+   [latest release](https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery/releases/latest).
+2. Double-click it, or drag it into Claude Desktop > **Settings** > **Extensions**, and choose **Install**.
+3. Fill in the form (host, port, read-only user, password; schema optional). For HANA Express turn
+   **Validate TLS certificate** off. Your password is kept in Claude Desktop's secure storage.
+4. Enable the extension. The first start downloads Python and the packages once (no `uv` or Python install needed).
+   Then, in a new chat: *"Diagnose the connection, then list my tables."*
+
+The chat has no `hana-analyst` skill, but the server gives Claude the same working rules.
 
 ## Built to keep working
 
@@ -139,6 +152,30 @@ Offline tests (no HANA needed; a fake driver simulates dropped connections, wron
 ```
 uv run --locked python tests/test_offline.py
 ```
+
+Live tests against your own HANA (reads the connection from a git-ignored `.env` in this folder, only reads data):
+
+```
+uv run --locked python tests/test_live.py ACDOCA EKKO KNA1
+```
+
+Build the Claude Desktop extension (needs Node.js for `npx`; output in `dist/`):
+
+```
+uv run --locked python scripts/build_mcpb.py
+```
+
+To live-test a built extension the way Claude Desktop starts it, unpack it
+(`npx @anthropic-ai/mcpb unpack dist/clearquery-<version>.mcpb <folder>`) and run the live tests with
+`CLEARQUERY_EXTENSION_DIR=<folder>`.
+
+## What's new in 2.2.0
+
+- **Claude Desktop extension** (`.mcpb`): one-click install with a settings form, password in secure storage, and
+  Python managed by Claude Desktop.
+- Public synonyms such as `DUMMY` are found even when a default schema is set.
+- `explain_plan` explains HANA's extra privilege rule for system views instead of giving generic advice.
+- Live test suite (`tests/test_live.py`), verified against SAP HANA 2.0 SPS08 (HANA Express).
 
 ## What's new in 2.1.0
 
