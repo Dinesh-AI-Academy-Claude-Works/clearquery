@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "hana": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--quiet",
+        "--locked",
+        "--project",
+        "${CLAUDE_PLUGIN_ROOT}",
+        "${CLAUDE_PLUGIN_ROOT}/server/hana_mcp_server.py"
+      ],
+      "env": {
+        "HANA_HOST": "${user_config.host}",
+        "HANA_PORT": "${user_config.port}",
+        "HANA_USER": "${user_config.user}",
+        "HANA_PASSWORD": "${user_config.password}",
+        "HANA_SCHEMA": "${user_config.schema}",
+        "HANA_ENCRYPT": "${user_config.encrypt}",
+        "HANA_VALIDATE_CERT": "${user_config.validate_cert}"
+      }
+    }
+  }
+}

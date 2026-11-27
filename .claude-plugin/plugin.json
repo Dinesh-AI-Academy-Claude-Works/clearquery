@@ -1,0 +1,68 @@
+{
+  "name": "clearquery",
+  "displayName": "ClearQuery: Analyst for SAP HANA, by Dinesh AI Academy",
+  "version": "2.0.0",
+  "description": "Ask Claude about your SAP HANA data. 34 read-only tools to explore schemas, describe tables and run SELECT queries, plus a skill that teaches Claude to analyse safely.",
+  "author": {
+    "name": "Dinesh AI Academy",
+    "email": "support@dineshaiacademy.com",
+    "url": "https://dineshaiacademy.com"
+  },
+  "homepage": "https://dineshaiacademy.com",
+  "repository": "https://github.com/Dinesh-AI-Academy-Claude-Works/clearquery",
+  "license": "MIT",
+  "icon": "./assets/icon.png",
+  "keywords": [
+    "clearquery",
+    "sap-hana",
+    "hana",
+    "sap",
+    "database",
+    "sql",
+    "analytics",
+    "read-only",
+    "mcp"
+  ],
+  "userConfig": {
+    "host": {
+      "type": "string",
+      "title": "HANA host (SQL endpoint)",
+      "description": "e.g. xxxx.hna0.prod-us10.hanacloud.ondemand.com, or localhost"
+    },
+    "port": {
+      "type": "string",
+      "title": "HANA port",
+      "description": "443 for HANA Cloud, 39041 for HANA Express",
+      "default": "443"
+    },
+    "user": {
+      "type": "string",
+      "title": "Read-only user",
+      "description": "A login that can only SELECT, such as MCP_READER. Never an admin user"
+    },
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "description": "Stored by Claude Code in secure storage, never in a file",
+      "sensitive": true
+    },
+    "schema": {
+      "type": "string",
+      "title": "Default schema (optional)",
+      "description": "The schema Claude works in, e.g. RETAIL",
+      "default": ""
+    },
+    "encrypt": {
+      "type": "string",
+      "title": "Use TLS encryption (true or false)",
+      "description": "Keep true for HANA Cloud and almost every system",
+      "default": "true"
+    },
+    "validate_cert": {
+      "type": "string",
+      "title": "Validate TLS certificate (true or false)",
+      "description": "Keep true for HANA Cloud. Use false only for HANA Express (self-signed certificate)",
+      "default": "true"
+    }
+  }
+}
